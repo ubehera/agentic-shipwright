@@ -1,8 +1,14 @@
-# shipwright
+# agentic-shipwright
 
-**A CI/CD template for multi-team production-critical projects.**
+**A CI/CD template for multi-team production-critical projects — built for codebases where humans and agents both ship.**
 
 A paradigm + scaffolding for CI/CD at projects with real users, multiple maintainers, and code you can't easily un-ship. Covers: bot-mediated review, structured proof discipline, sandboxed broad gates, run-ID-gated releases, and area-owner routing.
+
+The "agentic" prefix reflects three biases the template carries:
+
+- **Structured proof as a contract** — PR descriptions have parseable fields, so an agent (or a human) can verify evidence consistently.
+- **Bot-mediated review with a rubric** — labels and ratings are first-class, not afterthoughts, because agents reason in structured space.
+- **Run-ID-gated releases** — every release attests to specific validations; nothing publishes from "looks good to me." Useful whether the publisher is a human or an autonomous agent.
 
 Named after [shipwrights](https://en.wikipedia.org/wiki/Shipwright) — the craft of building vessels you trust to ship.
 
