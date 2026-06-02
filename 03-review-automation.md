@@ -61,12 +61,12 @@ A merge-readiness rating applied by the review bot. Pick a scheme that's memorab
 
 | Rating | Meaning | Typical merge action |
 |---|---|---|
-| 🦀 challenger crab | Rare. Exceptional readiness, strong proof, clean implementation, convincing validation. | Automerge candidate. |
-| 🦞 diamond lobster | Very strong. Minor maintainer review expected. | Light maintainer pass, merge. |
-| 🐚 platinum hermit | Good normal PR. Likely mergeable with ordinary review. | Standard maintainer review. |
-| 🦐 gold shrimp | Useful signal, but proof or patch confidence limited. | Needs more evidence or another iteration. |
-| 🦪 silver shellfish | Thin signal. Proof, validation, or implementation needs work. | Substantial revision before merge. |
-| 🧂 unranked krab | Not merge-ready. Missing/unusable proof, or serious correctness/safety concerns. | Block merge. Request fixes. |
+| 🚢 launch-ready | Rare. Exceptional readiness, strong proof, clean implementation, convincing validation. | Automerge candidate. |
+| ⚓ seaworthy | Very strong. Minor maintainer review expected. | Light maintainer pass, merge. |
+| 🧭 charted | Good normal PR. Likely mergeable with ordinary review. | Standard maintainer review. |
+| 🛠️ in-refit | Useful signal, but proof or patch confidence limited. | Needs more evidence or another iteration. |
+| 🪵 taking-water | Thin signal. Proof, validation, or implementation needs work. | Substantial revision before merge. |
+| ⛔ dry-docked | Not merge-ready. Missing/unusable proof, or serious correctness/safety concerns. | Block merge. Request fixes. |
 
 **Critical:** "overall" rating follows the **weaker** of "proof" and "patch quality." A perfect patch with weak proof gets bottlenecked on proof. This forces the proof discipline to actually matter.
 
@@ -116,8 +116,8 @@ The bot maintains **one comment per PR**, edited in place. New reviews update th
 Use HTML comment markers to identify the comment:
 
 ```html
-<!-- review-bot-id:item=86067 -->
-<!-- review-bot-verdict:platinum-hermit sha=2606e52d74 confidence=high -->
+<!-- review-bot-id:pr=<PR_NUMBER> -->
+<!-- review-bot-verdict:charted sha=<SHA> confidence=high -->
 ```
 
 The bot finds its own comment by marker, fetches the current PR HEAD SHA, compares, and edits or appends as needed.
@@ -134,7 +134,7 @@ Implement at least:
 Status updates posted to the durable comment, not as new comments:
 
 ```html
-<!-- bot-command-status:86067:re_review:<SHA> -->
+<!-- bot-command-status:<PR_NUMBER>:re_review:<SHA> -->
 <!-- bot-command-progress:start -->
 Re-review progress:
 - State: Review in progress
@@ -173,7 +173,7 @@ These should require explicit team membership checks — never invoke them from 
 - **Spamming the PR with comments.** Use the durable comment + label state instead.
 - **Reviewing the diff in isolation.** The bot must read AGENTS.md / scoped guides / sibling code paths. A review that doesn't read context is just a linter.
 - **Promising work without evidence.** "I checked X" with no reasoning shown is unhelpful. Bot reviews should include "what I checked" and "what I didn't check" sections.
-- **Blocking on bot rating alone.** A 🧂 unranked krab can still be a valid PR if a maintainer overrides; rating is a recommendation, not a vote.
+- **Blocking on bot rating alone.** A lowest-tier (⛔ dry-docked) rating can still be a valid PR if a maintainer overrides; rating is a recommendation, not a vote.
 - **Auto-applying labels without justification.** Every label change should have a one-line justification in the verdict comment.
 
 ## Migration path from no-bot

@@ -28,11 +28,11 @@ Before clicking Merge, the maintainer posts a structured comment documenting wha
 ```markdown
 Maintainer verification for head `<SHA>` rebased on base `<BASE_SHA>`:
 
-- **Focused regression tests:** `node scripts/run-vitest.mjs src/agents/foo.test.ts -- --reporter=dot`
+- **Focused regression tests:** `node scripts/run-tests.mjs src/core/foo.test.ts -- --reporter=dot`
   → N files / M tests passed.
 - **Diff sanity:** `git diff --check origin/main...HEAD` → passed.
 - **Structured review:** `<autoreview command>` → clean, no accepted/actionable findings.
-- **Broad changed gate:** `<crabbox/testbox command>` → passed on `<sandbox_id>`, run `<run_id>`, exit 0.
+- **Broad changed gate:** `<sandbox-runner command>` → passed on `<sandbox_id>`, run `<run_id>`, exit 0.
 - **GitHub checks:** `gh pr checks <PR#> --repo <repo>` → all current checks passing, including `<critical-check-name>`.
 
 Note: <any infrastructure flakes or known-flaky checks called out as unrelated>.
@@ -61,7 +61,7 @@ git rebase upstream/main
 
 # Resolve conflicts deliberately — keep contributor's intent
 # Run the focused test suite to make sure rebase didn't break anything
-node scripts/run-vitest.mjs <affected-tests>
+node scripts/run-tests.mjs <affected-tests>
 
 # Force-push with lease (refuses if someone else pushed in the meantime)
 git push --force-with-lease
@@ -86,17 +86,17 @@ Defense:
 The `.github/labeler.yml` config maps file paths to labels. Labels imply area ownership. Maintainers monitor "their" labels via GitHub notification filters:
 
 ```
-is:open is:pr label:"channel: discord"  -reviewed-by:@me
+is:open is:pr label:"area: plugin-a"  -reviewed-by:@me
 ```
 
 Auto-mention via CODEOWNERS:
 
 ```
 # .github/CODEOWNERS
-src/agents/                        @agents-team
-extensions/discord/                @discord-area-owners
-docs/                              @docs-team
-src/plugin-sdk/                    @sdk-maintainers
+src/core/                          @your-org/core-team
+extensions/plugin-a/               @your-org/plugin-a-owner
+docs/                              @your-org/docs-team
+src/sdk/                           @your-org/sdk-maintainers
 ```
 
 GitHub automatically requests review from CODEOWNERS when a PR touches their paths. This is the primary mechanism for "the right person sees this PR."

@@ -162,7 +162,7 @@ For a monorepo with plugins + core:
 publish-plugins:
   needs: verify-inputs
   strategy:
-    matrix: { plugin: [discord, slack, telegram, ...] }
+    matrix: { plugin: [plugin-a, plugin-b, plugin-c, ...] }
   runs-on: ubuntu-latest
   steps:
     - name: Publish ${{ matrix.plugin }} to npm
@@ -216,7 +216,7 @@ If any of these fail, the publish doesn't fire.
 | `stable` | ✓ | ✓ | — | — | — | `latest` | release |
 | `full` | ✓ | ✓ | ✓ | ✓ | ✓ (advisory) | `latest` | release |
 
-Beta releases run weekly off `main` for low-risk channels; stable releases run when a feature is ready to land for everyone; full release is the curated quarterly checkpoint that exercises everything.
+Beta releases run weekly off `main` for early-adopter users; stable releases run when a feature is ready to land for everyone; full release is the curated quarterly checkpoint that exercises everything.
 
 ## CHANGELOG discipline
 

@@ -6,23 +6,23 @@ The pattern across all five: start with a manual, human-driven version. Automate
 
 ## 1. Live QA harness
 
-**Problem it solves:** Some behavior can only be proven in a real environment with real external systems — pushing to a real Slack channel, calling a real provider API, talking to a real database. Unit tests can mock these; only a live run proves end-to-end correctness.
+**Problem it solves:** Some behavior can only be proven in a real environment with real external systems — posting to a real third-party webhook, calling a real provider API, talking to a real database. Unit tests can mock these; only a live run proves end-to-end correctness.
 
 **When you need this:** When you have at least one of:
-- Customer-facing integrations (channels, payment processors, third-party APIs)
+- Customer-facing integrations (messaging providers, payment processors, third-party APIs)
 - Platform-specific bugs that only repro on real hardware (mobile, native UI, OS-specific behavior)
 - A "reproduction shape" that's hard to fake (large data sets, specific account permissions, time-of-day behavior)
 
 **Build pattern:**
 
-1. **Define the smallest live-bound test that proves your most-common regression class.** For a messaging platform: "send a message via $CHANNEL, verify it arrived in the right thread." For a payments project: "create a $0.01 charge in test mode, verify webhook fires." For an inference service: "send a known prompt, verify response signature matches the reference."
+1. **Define the smallest live-bound test that proves your most-common regression class.** For a messaging product: "send a message via the $PROVIDER API, verify it was delivered." For a payments project: "create a $0.01 charge in test mode, verify webhook fires." For an inference service: "send a known prompt, verify response signature matches the reference."
 
 2. **Wrap it in a `workflow_dispatch` workflow.** No automatic triggers — live tests cost real money / real API quota / real time.
    ```yaml
    on:
      workflow_dispatch:
        inputs:
-         scenario: { type: choice, options: [smoke, channel-roundtrip, ...] }
+         scenario: { type: choice, options: [smoke, integration-roundtrip, ...] }
          ref: { type: string, default: main }
    ```
 
@@ -267,7 +267,7 @@ Each PR that touches the public API surface must document compat impact in a str
 
 Walk your codebase. Identify ~5-15 ownership domains. Examples:
 - `src/auth/` → auth team
-- `src/channels/discord/` → discord channel owner
+- `extensions/plugin-a/` → plugin-a owner
 - `docs/` → docs team
 - `src/sdk/` → SDK maintainers
 
@@ -283,9 +283,9 @@ Don't go finer than this. A CODEOWNERS file with 200 rules is unmaintainable.
 /src/auth/                     @your-org/auth-team
 /src/identity/                 @your-org/auth-team
 
-# Channels — one reviewer each
-/src/channels/discord/         @discord-owner
-/src/channels/slack/           @slack-owner
+# Plugins — one reviewer each
+/extensions/plugin-a/          @your-org/plugin-a-owner
+/extensions/plugin-b/          @your-org/plugin-b-owner
 
 # SDK — three reviewers (broad consensus)
 /src/sdk/                      @your-org/sdk-maintainers
@@ -306,7 +306,7 @@ GitHub automatically requests reviews from CODEOWNERS when a PR touches matching
 
 `.github/labeler.yml` (see `02-ci-workflow-scaffold.md`) applies area labels to PRs. Combine with CODEOWNERS so:
 - CODEOWNERS routes review request (push notification)
-- Labels make PRs filterable in queues (`is:pr is:open label:"channel: discord"`)
+- Labels make PRs filterable in queues (`is:pr is:open label:"area: plugin-a"`)
 
 ### Step 4: Bot auto-mention (optional)
 
@@ -314,7 +314,7 @@ If you have a review bot, it can auto-mention area owners in the verdict comment
 
 ```markdown
 Likely related people:
-- **@discord-owner:** Recent commits to `src/channels/discord/` (file: `src/channels/discord/monitor.ts`, lines: 145-203)
+- **@your-org/plugin-a-owner:** Recent commits to `extensions/plugin-a/` (file: `extensions/plugin-a/handler.ts`, lines: 145-203)
 ```
 
 Helps when CODEOWNERS auto-request fails (e.g., the owner is on vacation) — manual mentions still surface the PR.

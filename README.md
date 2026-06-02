@@ -76,4 +76,6 @@ The payoff: fewer regressions in production, faster review turnaround, less time
 
 ## Source
 
-This template was synthesized from research into one mature production codebase's CI/CD setup (56 GitHub workflows, custom review bot, sandboxed runner infrastructure, structured proof discipline, run-ID-gated releases). The principles and patterns are intentionally generalized; the source project's specific tool names and people have been replaced with role-neutral placeholders. See conversation history in this directory if you need the original research reports for context.
+This template generalizes patterns drawn from mature production CI/CD setups — three-tier CI, a custom review bot, sandboxed runner infrastructure, structured proof discipline, and run-ID-gated releases. Every name, path, label, and example here is an illustrative placeholder; adapt them to your own project.
+
+**Origins:** these patterns were distilled from the CI/CD setup of [OpenClaw](https://github.com/openclaw/openclaw), an open-source personal AI assistant, then generalized here for any project.

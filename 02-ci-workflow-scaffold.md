@@ -89,7 +89,7 @@ jobs:
       - uses: actions/setup-node@v5
         with: { node-version: '22' }
       - run: pnpm install --frozen-lockfile
-      - run: node scripts/run-vitest.mjs ${{ matrix.testPaths }}
+      - run: node scripts/run-tests.mjs ${{ matrix.testPaths }}
         env:
           # Prefix env vars with your project name (e.g., MYPROJ_VITEST_MAX_WORKERS)
           # so devs reproduce the same parallelism locally
@@ -131,11 +131,11 @@ jobs:
     steps:
       - uses: actions/checkout@v6
       - name: Acquire sandbox runner
-        # Example using a Blacksmith-hosted ephemeral runner. Substitute your
-        # own provider (AWS, fly.io, self-hosted runner pool, etc.).
-        uses: useblacksmith/begin-testbox@v1
+        # Example: acquire an ephemeral runner from your sandbox provider
+        # (Blacksmith, AWS, fly.io, a self-hosted runner pool, etc.).
+        uses: your-sandbox-provider/acquire-runner@v1
         with:
-          provider: blacksmith
+          provider: <your-runner-provider>
           idle-timeout: 90m
       - run: |
           env CI=1 \
@@ -287,9 +287,9 @@ Path-to-label config (`.github/labeler.yml`):
 
 ```yaml
 # Each label maps to file paths. Adds the label when any matching file changes.
-agents:
+core:
   - changed-files:
-    - any-glob-to-any-file: src/agents/**
+    - any-glob-to-any-file: src/core/**
 
 extensions:
   - changed-files:
@@ -301,14 +301,14 @@ docs:
       - docs/**
       - '*.md'
 
-# Channel-specific
-'channel: discord':
+# Area-specific
+'area: plugin-a':
   - changed-files:
-    - any-glob-to-any-file: extensions/discord/**
+    - any-glob-to-any-file: extensions/plugin-a/**
 
-'channel: slack':
+'area: plugin-b':
   - changed-files:
-    - any-glob-to-any-file: extensions/slack/**
+    - any-glob-to-any-file: extensions/plugin-b/**
 
 # Size labels — separate workflow that runs a script
 ```

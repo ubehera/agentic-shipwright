@@ -13,7 +13,7 @@ Each principle below trades short-term ergonomics for long-term defect cost. Pic
 **Principle:** A check that fires on every commit must be fast enough that nobody routes around it. A check that catches everything must exist somewhere, but doesn't have to be on the dev's keyboard.
 
 **Example implementation:** Two-tier local commands.
-- `pnpm check:changed` / `pnpm test:changed` — fires only against lanes derived from the git diff. Touches `extensions/discord/*`? Only `extensions/discord` lint + tests + boundary checks run.
+- `pnpm check:changed` / `pnpm test:changed` — fires only against lanes derived from the git diff. Touches `extensions/plugin-a/*`? Only `extensions/plugin-a` lint + tests + boundary checks run.
 - `pnpm check` / `pnpm test` — full suite. Slow. Rarely run by humans; reserved for CI and pre-release.
 
 A small script (`scripts/changed-lanes.mjs`) reads `git diff --name-only` against the merge-base, runs a regex classifier (e.g., `core`, `extensions`, `apps`, `docs`, `tooling`), and emits the set of lanes the diff touches. Any change to `package.json`, lockfiles, or `tsconfig.json` triggers the `all` lane. Every guard script and test runner reads that lane set.
@@ -55,7 +55,7 @@ Observed result after fix: ...
 What was not tested: ...
 ```
 
-A node script (`scripts/github/real-behavior-proof-policy.mjs`) reads the PR body with multi-name aliases, applies ~40 regex patterns to detect mock-only evidence vs live commands/screenshots/logs, and labels the PR `proof: supplied` / `proof: sufficient` / `triage: needs-real-behavior-proof`. Sufficient labels are required for merge.
+A node script (`scripts/github/real-behavior-proof-policy.mjs`) reads the PR body with multi-name aliases, applies a battery of regex patterns to detect mock-only evidence vs live commands/screenshots/logs, and labels the PR `proof: supplied` / `proof: sufficient` / `triage: needs-real-behavior-proof`. Sufficient labels are required for merge.
 
 **Why:** "Did you test this?" is unanswerable in code review without structured evidence. With this contract, the PR description IS the test report. The bot rejects PRs without it. Reviewers don't have to chase.
 
@@ -157,7 +157,7 @@ Plus: the review bot's dispatch workflow debounces labeled/unlabeled with a shor
 3. **PR descriptions as free text.** Without a parsed schema, you can't enforce evidence. Build the schema before the volume of PRs becomes unmanageable.
 4. **Release as `git push`.** Releases are an output of validation, not a step in development. Gate them on run IDs, not on someone clicking a button on Friday.
 5. **Merging fail-open changes silently.** Anything that weakens a safety net (removes a fallback, relaxes validation, adds a config compat shim) needs an explicit risk label, even if CI is green.
-6. **Reviewing the diff in isolation.** The bot rubric should require reviewing sibling surfaces — if your fix touches one provider routing path, what does the equivalent path look like on the other provider? One-sided fixes need sibling-surface proof.
+6. **Reviewing the diff in isolation.** The bot rubric should require reviewing sibling surfaces — if your fix touches one code path, what does the equivalent sibling path look like elsewhere? One-sided fixes need sibling-surface proof.
 7. **Force-pushing other people's branches without `Allow edits by maintainers`.** Both parties need to consent to the takeover model upfront, in writing.
 
 ## 3. Adaptation guide — when to skip each principle

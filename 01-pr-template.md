@@ -38,7 +38,7 @@ Drop this in `.github/PULL_REQUEST_TEMPLATE.md` and pair it with a workflow that
 
 ## Sibling surface check
 
-<!-- Did you check whether sibling code paths have the same bug? Provider A vs Provider B, Channel X vs Channel Y, etc. One-sided fixes need explicit "verified siblings unaffected" or "follow-up issue filed". -->
+<!-- Did you check whether sibling code paths have the same bug? Provider A vs Provider B, Module X vs Module Y, etc. One-sided fixes need explicit "verified siblings unaffected" or "follow-up issue filed". -->
 
 ## Changelog
 
@@ -134,7 +134,7 @@ const MOCK_ONLY_PATTERNS = [
 // ... parse body, classify, apply labels via gh api ...
 ```
 
-A production-grade parser can grow to ~40 patterns over time. Don't try to write all of them upfront — start strict, loosen as you learn what real PRs look like.
+A production-grade parser can grow to dozens of patterns over time. Don't try to write all of them upfront — start strict, loosen as you learn what real PRs look like.
 
 ## Label outcomes
 
