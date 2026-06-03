@@ -4,6 +4,90 @@ A paradigm for projects with 5+ regular contributors, real users on the receivin
 
 If you're solo or pre-product, this is overkill — pick three principles and skip the rest. The point is to lift ideas that scale, not to copy the whole stack.
 
+## 0. Why these gates work — and what they can't
+
+The seven principles below are *mechanisms*. This section is the *model* behind them: why a CI/PR process catches defects the author was sure weren't there, when to trust a green check, and — critically — the *classes* of defect no gate catches. It's a lens, not a closed taxonomy. Deploy the mechanisms without the model and you cargo-cult: an agent (or human) wiring CI from a checklist builds theater. Read this first.
+
+### 0.1 The defect model — error and self-review share a frame
+
+An author's mistake is rarely random; it's the systematic product of the frame they reasoned in. The fix looked best because the same model that *generated* it also *graded* it. A blind spot isn't "something they forgot to check" — it's something *invisible from where they stood*. That's why a careful, well-intentioned author ships a confident, wrong change and their own re-read sails past it: **the grader inherits the generator's priors.** Self-review is weak not because authors are lazy but because error and self-assessment are *correlated* — same origin.
+
+The corollary that drives everything else: a second check only helps if its verdict is *decoupled* from whatever made the author wrong. A reviewer who shares the author's training, reads only the author's narrative, and grades by the same taste is *different* but not *independent* — they miss the same things. **Diversity of failure modes is the design target; diversity of mechanism is only the means.**
+
+### 0.2 The external-oracle principle
+
+> **A gate earns its place by relocating the burden of proof from the author's *intention* to an *external oracle* — something that judges the artifact, not the author's report of it. Its strength is the product of three factors: how *deterministic* it is (immune to confidence), how much *more than the author chose to look at* it covers, and whether it *consults reality* rather than the author's claim about reality.**
+
+For any gate, ask: *what oracle does this consult, and how far is that oracle from the author's intention?* That one question is the sharpest diagnostic available. It surfaces theater — a check whose oracle is patch-shape is judging a *proxy*, not reality. And it surfaces fake defense-in-depth — two gates sharing one oracle are one gate wearing two hats. (A proxy dressed as reality can still pass it — see Goodhart, §0.3.)
+
+A gate decouples from the author on one or more axes — useful when *designing* one, because it names what to vary:
+
+- **Frame** — judges against a model the author didn't author (an external rubric; a reviewer who rebuilds the decision surface from the code, not from the PR narrative).
+- **Input** — consumes evidence the author didn't (the full suite runs files the author never opened; a parser reads the literal bytes, not the intent).
+- **Criterion** — "correct" is fixed in advance and external (a schema, a contract, a pass/fail oracle the author can't move to where their work already stands).
+- **Modality** — demands a *different kind* of evidence (the author made an *argument*; the gate requires an *observation*).
+
+These axes aren't a second model — they're the levers that move the three oracle factors: Criterion and Modality buy *determinism* and *reality*; Input buys *coverage beyond what the author chose*. Vary an axis only to strengthen the oracle.
+
+**Determinism is the strongest form, because it's independence from confidence itself.** The dangerous defects are *confidently* wrong, wrapped in fluent justification. A type-checker or a parser is the one judge that can't be talked out of a verdict — it never reads the justification. Weight a pipeline toward verdicts that can't be argued with.
+
+Four real misses, the gate that caught each, and the oracle it consulted:
+
+| The author missed… | because (blind spot) | caught by | oracle consulted |
+|---|---|---|---|
+| a fix at the **wrong layer** (suppressed the symptom where they were editing, not where the invariant lived) | local reasoning + satisficing — first coherent fix graded "good enough" | a reviewer mandated to rebuild the whole decision surface and demand the *best* fix, not a *plausible* one | a second judgment over the *whole* surface (frame + criterion) |
+| a **sibling** test broke | mental blast-radius was "files I touched," not "behavior I changed" | the full suite — it has *no model of relevance*, which is the feature | the whole artifact's behavior (input) |
+| a **machine-parsed** field, silently broken by "improving" the prose | unknown-unknown — didn't know a consumer parsed it | a deterministic validator, failing instantly + specifically | a fixed schema, immune to confidence (criterion + determinism) |
+| "**tests pass, therefore correct**" | proof-vs-claim conflation | a real-behavior gate demanding a live demonstration | observed reality (modality) |
+
+### 0.3 The Named-Defense Rule (design heuristic)
+
+For every gate you add, finish this sentence: *"This gate defends against ⟨named blind spot⟩; its oracle is ⟨what it consults⟩, which is ⟨deterministic / covers what the author didn't / consults reality⟩ — and therefore decoupled from the author's ⟨frame / input / criterion / modality⟩."* Lead with the oracle; independence is what you derive from it, not the starting point. If you can't name the blind spot, the gate is decorative. Then run four tests — each phrased so the *failing* answer names the fix:
+
+1. **Redundancy** — *Could the author, in good faith with more time, have run this exact gate against themselves and gotten the green they want?* If yes → it mostly duplicates self-review; it's a real gate only on the axis the author can't move (they can re-read the diff; they *can't* will a full suite green or argue a parser out of a verdict).
+2. **Confidence** — *Does the verdict change if the author is more eloquent or more certain?* If yes → it's coupled to confidence; backstop it with a deterministic or observational check.
+3. **Portfolio** — *Across all gates, do any two share the same oracle and the same inputs?* If yes → they fail together: apparent defense-in-depth, one effective layer. Stack gates by oracle, not by count — three checks that read the diff against personal taste are one check.
+4. **Goodhart** — *What stops an author meeting this check's letter and missing its spirit?* If the answer isn't "a gate whose bar is *not* fully exposed — an open-ended judgment review," → it will be gamed, the more precisely the more exactly you specified it.
+
+### 0.4 The verification ceiling — what no gate catches
+
+The four examples above are *survivors*: defects a gate happened to catch. The defects that reach production are the ones with **no gate-shaped signature**, and a pipeline that hides this trains people to mistake green for correct:
+
+- **Spec-is-wrong / wrong problem.** Every gate checks the artifact against the *stated* intent. If the intent is wrong, all gates go green.
+- **Sins of omission.** Gates check what's *in* the diff — not the validation never written, the error path never handled, the case no test covers.
+- **Design / taste / wrong-abstraction.** Make the wrong-layer fix one notch subtler — right layer, wrong abstraction, future-coupling — and it passes everything. Taste isn't gate-able.
+- **Emergent / integration / temporal.** Races, ordering, retry storms, "wrong only after N cycles." A live demo shows *one* execution — evidence of presence, never of absence.
+- **Performance / resource** regressions that are correct-but-slow, or only degrade at scale.
+- **Security logic that "works."** Returns the right answer for every test input and the wrong one for the adversarial case nobody wrote.
+
+Say the ceiling out loud in your pipeline: **green means "no defect of a shape a gate can see," not "correct." The absence of a red check is the absence of evidence, not evidence of safety** — and the residual classes above are exactly what survives to production, so green should *raise* scrutiny on design, spec, and omission, not end it. This is why the judgment-based reviewer is the *least* disposable gate, not the soft one: it's the only thing that looks at the classes no machine can.
+
+### 0.5 Anti-lessons — what NOT to conclude
+
+The model has *operational corollaries* — failure modes a pipeline trains into a team, faster into an agent that optimizes whatever proxy you hand it, literally and tirelessly:
+
+- **More gates ≠ more quality.** Gates cost latency, maintenance, and trust — a finite *budget*. Every new gate must name a defect class no existing gate catches; otherwise it's cost, not safety. Redundant correlated checks buy the *feeling* of safety with none of the coverage.
+- **Proxy ≠ target; shaping the artifact to the gate is the smell of gaming.** When honest compliance costs more than plausible compliance, authors satisfy the proxy: an author who breaks a parsed field by *rewriting it to taste* will, under a proof contract, produce a *claim* of "tested" rather than a test — unless the gate demands an observation it can't fabricate.
+- **Self-review isn't worthless — it's worthless *in the same frame*.** It turns high-value the moment you **change the oracle**: re-derive the spec from scratch, run the *full* suite (not the changed-files slice), demand a live demo of *your own* claim, and pick the input that fails *if you're wrong*. Most of what a careful author can do before any reviewer sees the work is exactly this.
+- **A flaky required check is a bug, not noise.** It teaches "retry until green," which inverts the gate into a laundering machine. Fix it or make it advisory; never re-roll a red.
+- **"I ran a thing" ≠ a demonstration.** A live proof is only proof to the extent it exercises the case *at risk*; happy-path-on-one-record is theater that manufactures confidence.
+
+### 0.6 Why agents need this more than humans
+
+An LLM agent's generation and self-assessment are the *same forward pass over the same context* — its self-review is maximally coupled to its error, more than any tired human's. Seven amplifiers, each of which defeats self-review and weak gates:
+
+- **Confidently fluent when wrong** — weaponizing the one channel self-review trusts.
+- **Finite, volatile context** — routinely omits the sibling and the contract.
+- **Satisfices** on the first coherent path.
+- **No persistent memory** of the project's contracts.
+- **"Improves" by rewriting** — breaking contracts it didn't know existed.
+- **Eager to declare done.**
+- **Goodharts literally** — satisfies a visible check efficiently, misses the intent.
+
+So for agent-authored work the bar is higher — but the cure isn't "trust the author less," it's **change the oracle, not the effort**. A frame-coupled blind spot can't be fixed by trying harder in the same frame; it *can* be fixed by the author re-deriving the spec, running the full suite, and demoing the at-risk case (§0.5). What *can't* be delegated is the judgment that the author's frame, however careful, is the thing under suspicion — so the pipeline supplies the rest: the contract memory the agent lacks (deterministic validators), the whole-surface context its window omits (broad lanes + sibling-surface review), the higher-than-functioning bar its satisficing skips (best-not-plausible rubric), the evidence-not-assertion definition of done its eagerness overruns (proof contract), and one judgment gate its optimizer can't teach-to-the-test (irreducible open-ended review). Each is chosen *to decouple* its verdict from the way the agent is confidently wrong — the design target of §0.1, not a guarantee any single gate achieves.
+
+The seven principles that follow each instantiate one or more of these defenses. Read them with the question: *which blind spot does this defend, and what oracle does it consult?*
+
 ## 1. The seven principles
 
 Each principle below trades short-term ergonomics for long-term defect cost. Pick them up in this order; later ones depend on earlier ones being honest.

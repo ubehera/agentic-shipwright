@@ -14,7 +14,7 @@ Named after [shipwrights](https://en.wikipedia.org/wiki/Shipwright) — the craf
 
 ## Documents
 
-- **[00-design.md](./00-design.md)** — The seven principles + rationale + anti-patterns + adaptation guide. Read this first.
+- **[00-design.md](./00-design.md)** — **§0 the model** (why gates catch defects the author missed — the external-oracle test, the verification ceiling, and why agents need it more than humans) + the seven principles + rationale + anti-patterns + adaptation guide. Read this first.
 - **[01-pr-template.md](./01-pr-template.md)** — PR description schema + Real behavior proof parser workflow.
 - **[02-ci-workflow-scaffold.md](./02-ci-workflow-scaffold.md)** — Three-tier CI (fast / broad / release) with concrete YAML examples and concurrency patterns.
 - **[03-review-automation.md](./03-review-automation.md)** — Label rubric (priority + risk + proof + status axes), bot review contract, durable comment pattern, command surface.
@@ -24,7 +24,7 @@ Named after [shipwrights](https://en.wikipedia.org/wiki/Shipwright) — the craf
 
 ## How to apply this to a new project
 
-1. **Read `00-design.md`.** Pick which of the seven principles apply to your project's scale and skip the rest. Smaller projects skip more.
+1. **Read `00-design.md` — start with §0 (the model).** It's the lens for everything else: for each gate you deploy, name the blind spot it defends and the oracle it consults, and remember the ceiling (green ≠ correct). Then pick which of the seven principles apply to your scale and skip the rest. Smaller projects skip more.
 2. **Start with `01-pr-template.md`.** PR template + parser is cheap and high-value; it works even without anything else.
 3. **Add `02-ci-workflow-scaffold.md`'s fast lane.** Define your changed-paths classifier and wire `check:changed` / `test:changed`.
 4. **Add labels per `03-review-automation.md`.** Start with manual labeling; automate later.
